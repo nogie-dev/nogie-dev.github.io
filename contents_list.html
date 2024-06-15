@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Term Project</title>
+
+    <script>
+        function youcanseeme(){
+            const imgGroup = document.querySelector('.rcp');
+            const contentIntro=document.querySelector('.content-intro')
+            const contentContainer=document.getElementById('next-content')
+            const nextContent=document.querySelector('.hidden')
+            imgGroup.style.display = 'none';
+            contentIntro.textContent="환영합니다";
+            nextContent.style.display="inline"
+            contentContainer.classList.toggle('left-align');
+        }
+        function rcp_judge(user_ans_r){
+            const user_ans=Number(user_ans_r)
+            const win="Congratulation! You can enjoy my contents"
+            const lose="Get Back! Try Again"
+            const com_ans = Math.floor(Math.random() * 3)+1;
+            //alert(com_ans+":"+user_ans)
+            console.log(user_ans+" : "+com_ans)
+            if(user_ans==com_ans){alert("Draw");youcanseeme()}
+            else if(user_ans==1 && com_ans==2){alert(win); youcanseeme()} else if(user_ans==2 && com_ans==1){alert(lose); document.location="/"}
+            else if(user_ans==2 && com_ans==3){alert(win); youcanseeme()} else if(user_ans==3 && com_ans==2){alert(lose); document.location="/"}
+            else if(user_ans==3 && com_ans==1){alert(win); youcanseeme()} else if(user_ans==1 && com_ans==3){alert(lose); document.location="/"}
+        }
+    </script>
+</head>
+
+<body class="body-main">
+    <div class="real-content-box">
+        <h1>Contents</h1>
+        <hr>
+        <h2 class="content-intro">즐기고싶다면 나를 밟고 넘어가라</h2>
+        <div class="content-container" id="next-content">
+            <div class="rcp">
+                <img src="/img/rock.png" onclick="rcp_judge('1')">
+                <img src="/img/sizer.png" onclick="rcp_judge('2')">
+                <img src="/img/paper.png" onclick="rcp_judge('3')">
+            </div>
+            <div class="hidden">
+                <div class="trapcard-area">
+                    <img class="trapcard" src="/img/trapcard.jpeg">
+                </div>
+                <div class="menu-mg">
+                    <ul class="content-menu">
+                        <li onclick="document.location='/contents/check_sensitive.html'">너의 반응속도는?</li>
+                        <li onclick="document.location='#'">도박묵시록 카이지 체험</li>
+                        <li>Milk</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

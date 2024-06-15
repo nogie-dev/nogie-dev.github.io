@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<script>
+    function fail(){
+        alert('too fast')
+        document.location="check_sensitive.html"
+    }
+    function success(start){
+        let end = new Date();
+        alert("당신의 반응속도는? : "+Number(end-start)+"ms")
+        document.location="check_sensitive.html"
+    }
+    function showNewElement() {
+        // 시작 버튼 부분
+        const startBtn = document.querySelector('.start-btn');
+        startBtn.style.display = 'none';
+        
+        // 시작 -> 대기 전환 부분
+        const waitBtn = document.createElement('button');
+        waitBtn.textContent = '대기';
+        waitBtn.className = 'wait-btn';
+        waitBtn.onclick=fail
+
+        // 요소 반영
+        const container = document.querySelector('.check-sens');
+        container.appendChild(waitBtn);
+
+        // 대기 -> 지금 전환 부분
+        const nowTime = Math.floor(Math.random() * 5)+1;
+        setTimeout(()=>{
+            waitBtn.style.display='none';
+            const nowBtn = document.createElement('button');
+            nowBtn.textContent = '지금!!!';
+            nowBtn.className = 'now-btn';
+            container.appendChild(nowBtn);
+            //코드 본인이 직접 짰습니다 코드 본인이 직접 짰습니다 코드 본인이 직접 짰습니다 코드 본인이 직접 짰습니다
+            let start = new Date();
+            nowBtn.onclick = () => success(start);
+        },nowTime*1000)
+    }
+</script>
+
+<body class="body-main">
+    <div class="container">
+        <div class="moving-text" onclick="document.location='/'">
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동 &emsp;
+            홈으로 이동</div>
+    
+    <div class="check-sens">
+        <button class="start-btn" onclick="showNewElement()">시작</button>
+    </div>
+</div>
+</body>
+</html>

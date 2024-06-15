@@ -1,0 +1,366 @@
+.gray_body {
+    font-family: 'Lato';
+    background: #f0f0f0;
+    color: #333;
+  }
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+nav {
+    background-color: #555;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+.content {
+    float: left;
+    width: 70%;
+    padding: 20px;
+}
+.sidebar {
+    float: left;
+    width: 30%;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    clear: both;
+}
+
+#columns{
+    column-width:300px;
+    column-gap: 15px;
+    margin-left:300px;
+}
+#columns figure{
+    display: inline-block;
+    border:1px solid gray;
+    border-radius: 10px;
+    margin:3px;
+    margin-bottom: 15px;
+    padding:10px;
+    box-shadow: 3px 3px 5px gray;
+    background-color: white;
+}
+#columns figure img{
+    width:100%;
+}
+#columns figure figcaption{
+    border-top:1px solid gray;
+    padding:10px;
+    margin-top:12px;
+}
+
+#inner_sidebar li{
+    padding: 3px
+}
+
+#inner_sidebar a{
+    text-decoration-line: none;
+    color: purple;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    min-height: 300px;
+    padding: 10px 20;
+    width: 90%;
+}
+
+.music_card{
+    background: white;
+    border: 1px solid #e6e6e6;
+    border-radius: 20px;
+    /* box-shadow: ; */
+    min-height: 600px;
+    padding: 10px 20;
+    width: 30%;
+}
+
+.music a{
+    color: blue;
+    text-decoration-line: none;
+}
+
+.music_list{
+    font-family: PFStardust; 
+    margin:0px;
+}
+
+.iframe-container {
+    display: grid;
+    place-items: center;
+}
+
+.card-wrapper{
+    padding: 5px;
+}
+
+.card-sort{
+    display: grid; 
+    place-items: center;
+    margin: 120px;
+}
+
+.background-card {
+    padding: 10px 20px;
+    border: 5px solid #A566FF;
+}
+
+.background-card > img{
+    padding: 9px;
+}
+
+h4{
+    font-family: '8BIT WONDER', sans-serif;
+    font-size: 12px;
+    display: inline;
+}
+
+.p-table{
+    border: none;
+}
+
+.p-table img:hover{
+    cursor: pointer;
+}
+
+.p-table{
+    border-spacing: 15px;
+}
+
+ul li a{
+    text-decoration: none;
+    color: black;
+}
+
+@font-face {
+    font-family: 'PFStardust';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PFStardust.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.my_pic{
+    margin:15px 15px 0px 15px;
+    width: 200px;
+    height:250px;
+}
+
+.body-main {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+.real-content-box {
+    border: 5px solid #333;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    height: 800px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content-box {
+    border: 5px solid #333;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    height: 800px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: rainbowTeduri 5s linear infinite;
+}
+
+.profile-container {
+    display: flex;
+    margin-top: 20px;
+}
+
+.personal-info {
+    max-width: 400px;
+}
+
+.content-box h1 {
+    margin-top: 0;
+}
+
+.content-box p {
+    margin-bottom: 0;
+}
+
+@keyframes rainbowTeduri {
+    0% { border-color: red; }
+    14% { border-color: orange; }
+    28% { border-color: yellow; }
+    42% { border-color: green; }
+    57% { border-color: blue; }
+    71% { border-color: indigo; }
+    85% { border-color: violet; }
+    100% { border-color: red; }
+}
+
+.icon_main{
+    margin: 30px;
+    width:100px;
+    height:100px;
+    padding: 10px;
+    border: 2px solid black ;
+    border-radius: 10px;
+    cursor: pointer; 
+}
+
+.icon_place{
+    text-align: center;
+}
+
+/*반응속도 컨텐츠 부분*/
+
+.check-sens{
+    display:flex;
+    align-items: center;
+    margin:auto;
+    width:100%;
+    height:300px;
+}
+
+.start-btn{
+    display :inline-block;
+    border: none;
+    width:100%;
+    height:600px;
+    background: #B2CCFF;
+    font-size: 30px;
+}
+
+.wait-btn{
+    display :inline-block;
+    border: none;
+    width:100%;
+    height:600px;
+    background: #FFA7A7;
+    font-size: 30px;
+}
+
+.now-btn{
+    display :inline-block;
+    border: none;
+    width:100%;
+    height:600px;
+    background: #86E57F;
+    font-size: 30px;
+}
+
+.container {
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    overflow:hidden;
+}
+
+.moving-text {
+    position: absolute;
+    top:20px;
+    white-space: nowrap;
+    font-size: 24px;
+    animation: moveText 5s linear infinite;
+    cursor:pointer;
+    animation-iteration-count: infinite;
+}
+
+@keyframes moveText {
+    0% {
+        right: -100%;
+    }
+    100% {
+        right: 100%;
+    }
+}
+
+/*가위바위보 파트*/
+.rcp img{
+    width:110px;
+    height:110px;
+    display: block;
+    margin: 20px;
+    cursor: pointer;
+}
+
+.rcp{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content-intro {
+    display: flex;
+    justify-content: center;
+    margin-top:30px;
+    width: 100%;
+}
+
+.content-container {
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+}
+.next-content-container {
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.left-align {
+    justify-content: flex-start; /* 좌측 정렬 */
+}
+
+.hidden{
+    display: none;
+    width:600px;
+    height:400px;
+    margin: auto;
+}
+
+.content-menu li{
+    margin:20px;
+    font-size: 20px;
+    cursor:pointer;
+}
+
+.trapcard{
+    width:300px;
+    height:200px;
+    display: block;
+    margin:auto;
+}
+.trapcard-area{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-mg{
+    margin-top: 50px;
+}
