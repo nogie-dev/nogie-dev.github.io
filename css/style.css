@@ -392,7 +392,7 @@ ul li a{
     border: 2px solid black;
     width: 100px;
     height: 100px;
-    background: gray;
+    background: #dfd3c3;
     position: absolute;
     animation-name: pop-up;
     animation-duration: 1s;
@@ -403,19 +403,32 @@ ul li a{
 #pop-one{
     left:650px;
     top:600px;
+    background-image: url('/img/seminar.png');
+    background-size: 100%;
     animation-delay: 3s;
 }
 
 #pop-two{
     left:300px;
     top:200px;
+    background-image: url('/img/health.jpeg');
+    background-size: 100%;
     animation-delay: 2s;
 }
 
 #pop-three{
     left:1100px;
     top:350px;
+    background-image: url('/img/hyundae.jpeg');
+    background-size: 90%;
     animation-delay: 1s;
+}
+
+.popup-box{
+    width:3px;
+    height:4px;
+    background: none;
+    border: 1px solid black;
 }
 
 @keyframes pop-up {
@@ -430,4 +443,11 @@ ul li a{
 #body-hidden{
     background-image: url("/img/newspaper-back.jpg");
     background-size: 100%;
+}
+
+#pt{
+    font-size: 28px;
+    position: absolute;
+    top:800px;
+    left:380px;
 }
