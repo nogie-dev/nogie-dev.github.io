@@ -74,7 +74,8 @@ footer {
     border-radius: 3px;
     min-height: 300px;
     padding: 10px 20;
-    width: 90%;
+    width: 50%;
+    height:600px;;
 }
 
 .music_card{
@@ -113,9 +114,17 @@ footer {
 }
 
 .background-card {
+    margin-top:30px;
     padding: 10px 20px;
     border: 5px solid #A566FF;
+    height:100%;
 }
+
+.background-card h1{font-size:34px;}
+.background-card h2{font-size:28px;}
+.background-card h4{font-size:16px;}
+.background-card hr{margin:30px;}
+.background-card a{margin:20px;}
 
 .background-card > img{
     padding: 9px;
@@ -333,7 +342,7 @@ ul li a{
 }
 
 .left-align {
-    justify-content: flex-start; /* 좌측 정렬 */
+    justify-content: flex-start;
 }
 
 .hidden{
@@ -363,4 +372,62 @@ ul li a{
 
 .menu-mg{
     margin-top: 50px;
+}
+
+/* 작업공간 부분 */
+#mywork{
+    position: relative;
+    animation-name: moving-man;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+@keyframes moving-man{
+    0%{left: -200px;}
+    100%{left:200px;}
+}
+
+/* 히든 부분 */
+.pop-up div{
+    border: 2px solid black;
+    width: 100px;
+    height: 100px;
+    background: gray;
+    position: absolute;
+    animation-name: pop-up;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+#pop-one{
+    left:650px;
+    top:600px;
+    animation-delay: 3s;
+}
+
+#pop-two{
+    left:300px;
+    top:200px;
+    animation-delay: 2s;
+}
+
+#pop-three{
+    left:1100px;
+    top:350px;
+    animation-delay: 1s;
+}
+
+@keyframes pop-up {
+    0%{ width: 10px;
+        height: 10px;
+    }
+    100%{
+        transform: scale(4,5);
+    }
+}
+
+#body-hidden{
+    background-image: url("/img/newspaper-back.jpg");
+    background-size: 100%;
 }
