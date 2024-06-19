@@ -24,7 +24,7 @@
             const com_ans = Math.floor(Math.random() * 3)+1;
             //alert(com_ans+":"+user_ans)
             console.log(user_ans+" : "+com_ans)
-            if(user_ans==com_ans){alert("Draw");youcanseeme()}
+            if(user_ans==com_ans){alert("Draw");}
             else if(user_ans==1 && com_ans==2){alert(win); youcanseeme()} else if(user_ans==2 && com_ans==1){alert(lose); document.location="/"}
             else if(user_ans==2 && com_ans==3){alert(win); youcanseeme()} else if(user_ans==3 && com_ans==2){alert(lose); document.location="/"}
             else if(user_ans==3 && com_ans==1){alert(win); youcanseeme()} else if(user_ans==1 && com_ans==3){alert(lose); document.location="/"}
@@ -50,8 +50,6 @@
                 <div class="menu-mg">
                     <ul class="content-menu">
                         <li onclick="document.location='/contents/check_sensitive.html'">너의 반응속도는?</li>
-                        <li onclick="document.location='#'">도박묵시록 카이지 체험</li>
-                        <li>Milk</li>
                     </ul>
                 </div>
             </div>
