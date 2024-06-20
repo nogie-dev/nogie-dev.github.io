@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+
+	<script>
+		function discountBox() {
+			let boxCountElement = document.getElementById("box-count");
+			let boxCount = parseInt(boxCountElement.innerHTML);
+			if(boxCount==0){
+				clearGame()
+			}else{
+				boxCount -= 1;
+				boxCountElement.innerHTML = boxCount;
+				console.log("Updated box count:", boxCount);
+			}
+		}
+		
+		function clearGame(){
+			let boxElement = document.getElementById("box");
+			let boxCount = document.getElementById("box-count");
+			boxElement.classList.add("fade-out");
+			boxElement.style.display="none"
+			boxCount.style.display="none"
+	
+			let=newImage = document.createElement("img");
+			newImage.classList.add("fade-in");
+			newImage.src='/img/openedbox.png'
+			boxElement.parentNode.replaceChild(newImage,boxElement);
+			alert("이 보물은 당신의 것이오. ( 2초 후 홈으로 이동합니다. )")
+
+			setTimeout(()=>{document.location="/"},2000)
+		}
+	</script>
+</head>
+
+<body>
+	<div class=box-main>
+		<p id=box-count>999</p>
+		<img id=box src="/img/nopenedbox.png" onclick="discountBox()">
+	</div>
+</body>
+
+</html>

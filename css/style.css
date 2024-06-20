@@ -417,3 +417,29 @@ ul li a{
     top:800px;
     left:380px;
 }
+
+/* eggbreaker 부분 */
+#box{
+    width:450px;
+    height:450px;
+    cursor: pointer;
+}
+
+#box-count{font-size: 30px;}
+
+.box-main{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:100vh;
+}
+
+.fade-out{
+    opacity: 0;
+    transition:0.3s;
+}
+.fade-in{
+    opacity: 1;
+    transition:0.3s;
+}
