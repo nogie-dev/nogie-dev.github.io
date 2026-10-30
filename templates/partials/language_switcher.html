@@ -1,0 +1,26 @@
+{%- set translations = [] -%}
+{%- if page -%}
+	{%- set translations = page.translations -%}
+{%- elif section -%}
+	{%- set translations = section.translations -%}
+{%- endif -%}
+{%- set_global alternatives = [] -%}
+{%- for translation in translations -%}
+	{%- if translation.lang != lang -%}
+		{%- set_global alternatives = alternatives | concat(with=[translation]) -%}
+	{%- endif -%}
+{%- endfor -%}
+{%- if alternatives | length > 0 -%}
+<li id="language-switcher">
+	<details class="closable">
+		<summary class="circle" title="{{ macros_translate::translate(key='language', default='Language', language_strings=language_strings) }}">
+			<i class="icon"></i>
+		</summary>
+		<ul>
+			{%- for translation in alternatives -%}
+			<li><a lang="{{ translation.lang }}" hreflang="{{ translation.lang }}" href="{{ translation.permalink }}">{{ translation.lang | upper }}</a></li>
+			{%- endfor -%}
+		</ul>
+	</details>
+</li>
+{%- endif -%}
