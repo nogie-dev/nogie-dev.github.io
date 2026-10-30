@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="ko" >
+<head>
+	<!-- 2026-10-30 Fri 12:52 -->
+	<meta charset="UTF-8" />
+	<meta name="description" content="Zola + Duckquill" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="theme-color" content="#ff7800" />
+		<meta name="theme-color" content="#ffa348" media="(prefers-color-scheme:dark)" />
+	<title>2025 HSPACE CLUB LEAGUE Quals Write Up - Degen</title>
+	<link rel="canonical" href="https://nogie-dev.github.io/blog/2025-hspace-club-league-quals-write-up/" /><link rel="icon" type="image/png" href="https://nogie-dev.github.io/favicon.png" />
+
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://nogie-dev.github.io/apple-touch-icon.png" />
+
+		
+			
+				<link rel="alternate" type="application/rss+xml" title="Degen - RSS Feed" href="https://nogie-dev.github.io/rss.xml">
+			
+		
+			
+				<link rel="alternate" type="application/atom+xml" title="Degen - Atom Feed" href="https://nogie-dev.github.io/atom.xml">
+			
+		
+    <style type="text/css">
+	:root {--accent-color: #ff7800;}[data-theme="dark"] {
+			--accent-color: #ffa348;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: #ffa348;
+			}
+		}</style>
+
+			<link type="text/css" rel="stylesheet" href="https://nogie-dev.github.io/style.css" />
+			<link type="text/css" rel="stylesheet" href="https://nogie-dev.github.io/icons.css" />
+			<link type="text/css" rel="stylesheet" href="https://nogie-dev.github.io/mods.css" />
+			<script type="text/javascript" defer  src="https://nogie-dev.github.io/closable.js"></script>
+			<script type="text/javascript" defer  src="https://nogie-dev.github.io/copy-button.js"></script>
+			<script type="text/javascript" defer  src="https://nogie-dev.github.io/theme-switcher.js"></script>
+
+	<meta property="og:site_name" content="Degen" />
+	<meta property="og:title" content="2025 HSPACE CLUB LEAGUE Quals Write Up - Degen" />
+	<meta property="og:url" content="https://nogie-dev.github.io/blog/2025-hspace-club-league-quals-write-up/" />
+	<meta property="og:description" content="Write-up scaffold for the 2025 HSPACE CLUB LEAGUE Quals challenges" /><meta property="og:image" content="https://nogie-dev.github.io/card.png" /><meta property="og:locale" content="en_US" />
+</head>
+
+<body>
+
+		
+<header id="site-nav">
+	<nav>
+		<a href="#main-content" tabindex="0">
+			Skip to Main Content
+		</a>
+		<ul>
+			<li id="home">
+				<a href="https://nogie-dev.github.io">
+					<i class="icon"></i>Degen</a>
+			</li>
+			<li class="divider"></li>
+					<li>
+						<a href="https://nogie-dev.github.io/blog/">Blog</a>
+					</li>
+					<li>
+						<a href="https:&#x2F;&#x2F;github.com" rel="" class="external">GitHub</a>
+					</li>
+				<li id="search">
+					<button id="search-toggle" class="circle" title="Search">
+						<i class="icon"></i>
+					</button>
+				</li>
+				<li id="theme-switcher">
+					<details class="closable">
+						<summary class="circle" title="Theme">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+							<li>
+								<button class="circle" id="theme-light" title="Switch to Light Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-dark" title="Switch to Dark Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-system" title="Use System Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+						</ul>
+					</details>
+				</li><li id="feed">
+					<details class="closable">
+						<summary class="circle" title="Feed">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+								<li>
+									<a href="https://nogie-dev.github.io/rss.xml" rel="">RSS</a>
+								</li>
+								<li>
+									<a href="https://nogie-dev.github.io/atom.xml" rel="">Atom</a>
+								</li></ul>
+					</details>
+				</li>
+		</ul>
+	</nav>
+		<div id="search-container">
+			<label for="search-bar" class="visually-hidden">Search</label>
+			<input id="search-bar" placeholder="Search for…" autocomplete="off" type="search" disabled>
+			<div id="search-results-container">
+				<div id="search-results"></div>
+			</div>
+		</div>
+</header>
+<main id="main-content">
+		
+<h1>2025 HSPACE CLUB LEAGUE Quals Write Up</h1><h2 id="tl-dr">TL;DR</h2>
+<ul>
+<li>Perpdex challenge serving <code>ETH/USD</code>, <code>BTC/USD</code>, <code>SOL/USD</code>, and <code>HYPE/USD</code> pairs; <code>Setup.sol</code> seeds the solver with the initial bankroll needed to open and hedge positions.</li>
+<li>Solve condition from the challenge statement (must use only the provided bankroll and hit the gate below).</li>
+</ul>
+<h2 id="challenges">Challenges</h2>
+<ul>
+<li>babyevm (web3, 900 points): summary and key bug.</li>
+</ul>
+<h2 id="setup-contract">Setup Contract</h2>
+<ul>
+<li><code>Setup.sol</code> deploys <code>PriceOracle</code>, <code>USDH</code>, <code>HspacePerpDEX</code>, approves and deposits <code>500_000 ether - 100 ether</code> into the DEX, and gives the solver the remaining <code>USDH</code> via <code>claim()</code>.</li>
+</ul>
+<pre class="giallo" style="color: #839496; background-color: #002B36;"><code data-lang="solidity"><span class="giallo-l"><span style="color: #859900;">pragma</span><span style="color: #268BD2;"> solidity</span><span style="color: #CB4B16;"> ^0.8.25</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #859900;">import</span><span style="color: #2AA198;"> &quot;./HspacePerpDEX.sol&quot;</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #859900;">import</span><span style="color: #2AA198;"> &quot;./PriceOracle.sol&quot;</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #859900;">import</span><span style="color: #2AA198;"> &quot;./USDH.sol&quot;</span><span>;</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">contract</span><span style="color: #CB4B16;"> Setup</span><span> {</span></span>
+<span class="giallo-l"><span>    HspacePerpDEX </span><span style="color: #93A1A1;font-weight: bold;">public</span><span> dex;</span></span>
+<span class="giallo-l"><span>    PriceOracle </span><span style="color: #93A1A1;font-weight: bold;">public</span><span> oracle;</span></span>
+<span class="giallo-l"><span>    USDH </span><span style="color: #93A1A1;font-weight: bold;">public</span><span> usdh;</span></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">    mapping</span><span>(</span><span style="color: #859900;">address =&gt; uint256</span><span>)</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span> donations;</span></span>
+<span class="giallo-l"><span style="color: #859900;">    bool</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span> isSolved;</span></span>
+<span class="giallo-l"><span>   </span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span> initialBalance </span><span style="color: #859900;">=</span><span style="color: #D33682;"> 500_000</span><span style="color: #B58900;"> ether</span><span style="color: #859900;"> -</span><span style="color: #D33682;"> 100</span><span style="color: #B58900;"> ether</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">    constructor</span><span>() {</span></span>
+<span class="giallo-l"><span>        oracle </span><span style="color: #859900;">= new</span><span style="color: #268BD2;"> PriceOracle</span><span>();</span></span>
+<span class="giallo-l"><span>        usdh </span><span style="color: #859900;">= new</span><span style="color: #268BD2;"> USDH</span><span>();</span></span>
+<span class="giallo-l"><span>        dex </span><span style="color: #859900;">= new</span><span style="color: #268BD2;"> HspacePerpDEX</span><span>(</span><span style="color: #859900;">address</span><span>(oracle),</span><span style="color: #859900;"> address</span><span>(usdh));</span></span>
+<span class="giallo-l"><span>        usdh.</span><span style="color: #268BD2;">approve</span><span>(</span><span style="color: #859900;">address</span><span>(dex), initialBalance);</span></span>
+<span class="giallo-l"><span>        dex.</span><span style="color: #268BD2;">deposit</span><span>(initialBalance);</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">    function</span><span style="color: #268BD2;"> claim</span><span>()</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span> {</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">        // 100 USDC 제공</span></span>
+<span class="giallo-l"><span>        usdh.</span><span style="color: #268BD2;">transfer</span><span>(</span><span style="color: #268BD2;">msg.sender</span><span>, usdh.</span><span style="color: #268BD2;">balanceOf</span><span>(</span><span style="color: #859900;">address</span><span>(</span><span style="color: #268BD2;">this</span><span>)));</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">    function</span><span style="color: #268BD2;"> solve</span><span>()</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span> {</span></span>
+<span class="giallo-l"><span style="color: #859900;">        bytes32</span><span>[]</span><span style="color: #93A1A1;font-weight: bold;"> memory</span><span> markets </span><span style="color: #859900;">= new bytes32</span><span>[](</span><span style="color: #D33682;">4</span><span>);</span></span>
+<span class="giallo-l"><span>        markets[</span><span style="color: #D33682;">0</span><span>]</span><span style="color: #859900;"> =</span><span> dex.</span><span style="color: #268BD2;">ETH_USD_MARKET</span><span>();</span></span>
+<span class="giallo-l"><span>        markets[</span><span style="color: #D33682;">1</span><span>]</span><span style="color: #859900;"> =</span><span> dex.</span><span style="color: #268BD2;">BTC_USD_MARKET</span><span>();</span></span>
+<span class="giallo-l"><span>        markets[</span><span style="color: #D33682;">2</span><span>]</span><span style="color: #859900;"> =</span><span> dex.</span><span style="color: #268BD2;">SOL_USD_MARKET</span><span>();</span></span>
+<span class="giallo-l"><span>        markets[</span><span style="color: #D33682;">3</span><span>]</span><span style="color: #859900;"> =</span><span> dex.</span><span style="color: #268BD2;">HYPE_USD_MARKET</span><span>();</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">        // 위 중 하나라도 아래 조건을 모두 만족해야 함</span></span>
+<span class="giallo-l"><span style="color: #859900;">        for</span><span> (</span><span style="color: #859900;">uint256</span><span> i </span><span style="color: #859900;">=</span><span style="color: #D33682;"> 0</span><span>; i </span><span style="color: #859900;">&lt;</span><span style="color: #D33682;"> 4</span><span>; i</span><span style="color: #859900;">++</span><span>) {</span></span>
+<span class="giallo-l"><span>            (</span><span style="color: #859900;">uint256</span><span> totalTrades,,</span><span style="color: #859900;">uint256</span><span> winRate,,,</span><span style="color: #859900;">int256</span><span> roi)</span><span style="color: #859900;"> =</span><span> dex.</span><span style="color: #268BD2;">getTraderStats</span><span>(</span><span style="color: #268BD2;">msg.sender</span><span>, markets[i]);</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">            // over 20 trades, 80% win rate, 100000000000000% ROI</span></span>
+<span class="giallo-l"><span style="color: #859900;">            if</span><span> (totalTrades </span><span style="color: #859900;">&lt;</span><span style="color: #D33682;"> 20</span><span style="color: #859900;"> ||</span><span> winRate </span><span style="color: #859900;">&lt;</span><span style="color: #D33682;"> 8000</span><span style="color: #859900;"> ||</span><span> roi </span><span style="color: #859900;">&lt;</span><span style="color: #D33682;"> 10_000_000_000_000_000</span><span>) {</span></span>
+<span class="giallo-l"><span style="color: #859900;">                continue</span><span>;</span></span>
+<span class="giallo-l"><span>            }</span></span>
+<span class="giallo-l"><span>            isSolved </span><span style="color: #859900;">=</span><span style="color: #B58900;"> true</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #859900;">            break</span><span>;</span></span>
+<span class="giallo-l"><span>        }</span></span>
+<span class="giallo-l"><span style="color: #859900;">        return</span><span>;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre>
+<p>Oracle price walk (core loop):</p>
+<pre class="giallo" style="color: #839496; background-color: #002B36;"><code data-lang="python"><span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">def</span><span style="color: #268BD2;"> update_simulated_prices</span><span>(self):</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    # random drift between -0.1% and +0.1%, repeated 5 times</span></span>
+<span class="giallo-l"><span style="color: #859900;">    for</span><span> _</span><span style="color: #859900;"> in</span><span style="color: #268BD2;"> range</span><span>(</span><span style="color: #D33682;">5</span><span>):</span></span>
+<span class="giallo-l"><span style="color: #859900;">        for</span><span> token</span><span style="color: #859900;"> in</span><span style="color: #268BD2;"> self</span><span>.prices:</span></span>
+<span class="giallo-l"><span>            change_percent</span><span style="color: #859900;"> =</span><span> random.uniform(</span><span style="color: #859900;">-</span><span style="color: #D33682;">0.1</span><span>,</span><span style="color: #D33682;"> 0.1</span><span>)</span><span style="color: #859900;"> /</span><span style="color: #D33682;"> 100.0</span></span>
+<span class="giallo-l"><span style="color: #268BD2;">            self</span><span>.prices[token]</span><span style="color: #859900;"> *=</span><span> (</span><span style="color: #D33682;">1</span><span style="color: #859900;"> +</span><span> change_percent)</span></span></code></pre>
+<p>The listener runs this every 5 seconds and pushes <code>ETH/USD</code>, <code>BTC/USD</code>, <code>SOL/USD</code>, and <code>HYPE/USD</code> via <code>updatePrices</code>, so the feed is a gentle random walk unless you seize oracle control.</p>
+<h2 id="exploitation-notes">Exploitation Notes</h2>
+<ul>
+<li>ROI hack: <code>getTraderStats</code> divides PnL by <code>deposit_sum</code>; direct <code>receive</code> funding boosts balance without increasing <code>deposit_sum</code>, so ROI explodes with tiny reported capital.</li>
+<li>Win-rate/ROI formulas: <code>winRate = (winningTrades * BASIS_POINTS) / totalTrades</code> and <code>roi = (totalPnL * BASIS_POINTS) / deposit_sum[trader]</code> keep wins-only counting and make ROI skyrocket when <code>deposit_sum</code> is tiny.</li>
+</ul>
+<pre class="giallo" style="color: #839496; background-color: #002B36;"><code data-lang="solidity"><span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">function</span><span style="color: #268BD2;"> getTraderStats</span><span>(</span><span style="color: #859900;">address</span><span> trader,</span><span style="color: #859900;"> bytes32</span><span> marketId)</span><span style="color: #93A1A1;font-weight: bold;"> external view</span><span style="color: #859900;"> returns</span><span> (</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> totalTrades,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> winningTrades,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> winRate,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    int256</span><span> totalPnL,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> totalVolume,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    int256</span><span> roi</span></span>
+<span class="giallo-l"><span>) {</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #859900;">    if</span><span> (totalTrades </span><span style="color: #859900;">&gt;</span><span style="color: #D33682;"> 0</span><span>) {</span></span>
+<span class="giallo-l"><span>        winRate </span><span style="color: #859900;">=</span><span> (winningTrades </span><span style="color: #859900;">*</span><span> BASIS_POINTS)</span><span style="color: #859900;"> /</span><span> totalTrades;</span><span style="color: #586E75;font-style: italic;"> // 이긴 거래 횟수 * 10000 / 총 거래 횟수</span></span>
+<span class="giallo-l"><span>    }</span><span style="color: #859900;"> else</span><span> {</span></span>
+<span class="giallo-l"><span>        winRate </span><span style="color: #859900;">=</span><span style="color: #D33682;"> 0</span><span>;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"><span style="color: #859900;">    if</span><span> (balances[trader]</span><span style="color: #859900;"> &gt;</span><span style="color: #D33682;"> 0</span><span>) {</span></span>
+<span class="giallo-l"><span>        roi </span><span style="color: #859900;">=</span><span> (totalPnL </span><span style="color: #859900;">* int256</span><span>(BASIS_POINTS))</span><span style="color: #859900;"> / int256</span><span>(deposit_sum[trader]);</span></span>
+<span class="giallo-l"><span>    }</span><span style="color: #859900;"> else</span><span> {</span></span>
+<span class="giallo-l"><span>        roi </span><span style="color: #859900;">=</span><span style="color: #D33682;"> 0</span><span>;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #268BD2;">receive</span><span>()</span><span style="color: #93A1A1;font-weight: bold;"> external payable</span><span> {</span></span>
+<span class="giallo-l"><span>    balances[</span><span style="color: #268BD2;">msg.sender</span><span>]</span><span style="color: #859900;"> +=</span><span style="color: #268BD2;"> msg</span><span>.value;</span><span style="color: #586E75;font-style: italic;">           // no deposit_sum bump</span></span>
+<span class="giallo-l"><span>    totalLiquidity </span><span style="color: #859900;">+=</span><span style="color: #268BD2;"> msg</span><span>.value;</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">function</span><span style="color: #268BD2;"> deposit</span><span>(</span><span style="color: #859900;">uint256</span><span> amount)</span><span style="color: #93A1A1;font-weight: bold;"> external</span><span> {</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // deposit_sum only increases here</span></span>
+<span class="giallo-l"><span>    balances[</span><span style="color: #268BD2;">msg.sender</span><span>]</span><span style="color: #859900;"> +=</span><span> amount;</span></span>
+<span class="giallo-l"><span>    deposit_sum[</span><span style="color: #268BD2;">msg.sender</span><span>]</span><span style="color: #859900;"> +=</span><span> amount;</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre>
+<ul>
+<li>Win-rate shaping: <code>closePosition</code> increments <code>winningTrades</code> only when <code>pnl &gt; 0</code>, so only profitable closes lift win rate. <code>liquidate</code> can be called on your own underwater positions to exit without touching <code>winningTrades</code>. By polling <code>getPosition</code> for unrealized PnL, you can liquidate losers and close winners, driving <code>winRate</code> to ≥80% while pairing with the ROI boost from the <code>deposit_sum</code> gap.</li>
+</ul>
+<pre class="giallo" style="color: #839496; background-color: #002B36;"><code data-lang="solidity"><span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">function</span><span style="color: #268BD2;"> closePosition</span><span>(</span><span style="color: #859900;">bytes32</span><span> marketId)</span><span style="color: #93A1A1;font-weight: bold;"> public</span><span style="color: #268BD2;"> whenNotPaused</span><span> {</span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span>    stats.totalTrades </span><span style="color: #859900;">+=</span><span style="color: #D33682;"> 1</span><span>;</span></span>
+<span class="giallo-l"><span style="color: #859900;">    if</span><span> (pnl </span><span style="color: #859900;">&gt;</span><span style="color: #D33682;"> 0</span><span>) {</span></span>
+<span class="giallo-l"><span>        stats.winningTrades </span><span style="color: #859900;">+=</span><span style="color: #D33682;"> 1</span><span>;</span></span>
+<span class="giallo-l"><span>    }</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #859900;">    delete</span><span> positions[</span><span style="color: #268BD2;">msg.sender</span><span>][marketId];</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">function</span><span style="color: #268BD2;"> liquidate</span><span>(</span><span style="color: #859900;">address</span><span> trader,</span><span style="color: #859900;"> bytes32</span><span> marketId)</span><span style="color: #93A1A1;font-weight: bold;"> external</span><span style="color: #268BD2;"> whenNotPaused</span><span> {</span></span>
+<span class="giallo-l"><span>    Position </span><span style="color: #93A1A1;font-weight: bold;">storage</span><span> pos </span><span style="color: #859900;">=</span><span> positions[trader][marketId];</span></span>
+<span class="giallo-l"><span style="color: #859900;">    require</span><span>(pos.size </span><span style="color: #859900;">&gt;</span><span style="color: #D33682;"> 0</span><span>,</span><span style="color: #2AA198;"> &quot;No position to liquidate&quot;</span><span>);</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #859900;">    delete</span><span> positions[trader][marketId];</span></span>
+<span class="giallo-l"><span>    </span></span>
+<span class="giallo-l"><span style="color: #586E75;font-style: italic;">    // ...</span></span>
+<span class="giallo-l"><span>}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #93A1A1;font-weight: bold;">function</span><span style="color: #268BD2;"> getPosition</span><span>(</span><span style="color: #859900;">address</span><span> trader,</span><span style="color: #859900;"> bytes32</span><span> marketId)</span><span style="color: #93A1A1;font-weight: bold;"> external view</span><span style="color: #859900;"> returns</span><span> (</span></span>
+<span class="giallo-l"><span style="color: #859900;">    bool</span><span> isLong,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> size,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> collateral,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> entryPrice,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    uint256</span><span> leverage,</span></span>
+<span class="giallo-l"><span style="color: #859900;">    int256</span><span> unrealizedPnL</span></span>
+<span class="giallo-l"><span>) {</span></span>
+<span class="giallo-l"><span>    Position </span><span style="color: #93A1A1;font-weight: bold;">storage</span><span> pos </span><span style="color: #859900;">=</span><span> positions[trader][marketId];</span></span>
+<span class="giallo-l"><span style="color: #859900;">    return</span><span> (</span></span>
+<span class="giallo-l"><span>        pos.isLong,</span></span>
+<span class="giallo-l"><span>        pos.size,</span></span>
+<span class="giallo-l"><span>        pos.collateral,</span></span>
+<span class="giallo-l"><span>        pos.entryPrice,</span></span>
+<span class="giallo-l"><span>        pos.leverage,</span></span>
+<span class="giallo-l"><span style="color: #268BD2;">        calculatePnL</span><span>(trader, marketId)</span></span>
+<span class="giallo-l"><span>    );</span></span>
+<span class="giallo-l"><span>}</span></span></code></pre><h3 id="payload-scripts-trimmed-to-core-actions">Payload scripts (trimmed to core actions)</h3>
+<ul>
+<li>setup.s.sol: <code>claim()</code> to grab USDH, <code>approve</code> + <code>deposit(1)</code> to seed <code>deposit_sum</code> minimally, then <code>dex.call{value: 0.95 ether}("")</code> to inflate <code>balances</code> without touching <code>deposit_sum</code>.</li>
+<li>open.s.sol: fetch <code>getLatestPrice</code> for entry, (optionally) open a tiny position, and use <code>getTraderStats</code> to monitor <code>totalTrades/winRate/ROI</code> progress.</li>
+<li>close.s.sol: read <code>getPosition</code> for PnL; if <code>pnl &gt; 0</code> then <code>closeETHPosition()</code> (win++), else <code>liquidate(eoa, market)</code> to reset a loser without harming win count; loop and re-check <code>getTraderStats</code>.</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Official solve hinged on frontrunning oracle price updates in mempool and trading with higher gas at settle time. My approach leaned on ROI/win-rate manipulation via <code>deposit_sum</code> gap and self-liquidations—an unintended path.</li>
+</ul>
+
+
+	</main>
+	<footer id="site-footer">
+		<nav>
+			<ul>
+					<li>
+						<a href="https://nogie-dev.github.io/blog/">Blog</a>
+					</li>
+			</ul>
+		</nav>
+		<ul id="external-links">
+				<li>
+					<a href="https://github.com" rel=" me" title="GitHub">
+						<i class="icon" style='--icon: url("data:image/svg+xml,%3Csvg role=&#x27;img&#x27; viewBox=&#x27;0 0 24 24&#x27; xmlns=&#x27;http:&#x2F;&#x2F;www.w3.org&#x2F;2000&#x2F;svg&#x27;%3E%3Ctitle%3EGitHub%3C&#x2F;title%3E%3Cpath d=&#x27;M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12&#x27;&#x2F;%3E%3C&#x2F;svg%3E")'></i>
+						<span>GitHub</span>
+					</a>
+				</li>
+		</ul>
+</footer>
+
+	
+	<span id="copy-code-text" class="hidden">Copy Code</span>
+	<span id="search-index" class="hidden">https://nogie-dev.github.io/search_index.ko.json</span>
+	<span id="more-matches-text" class="hidden">$MATCHES more matches</span>
+
+	<style type="text/css">
+	:root {
+		--alert-note-text: "Note";
+		--alert-tip-text: "Tip";
+		--alert-important-text: "Important";
+		--alert-warning-text: "Warning";
+		--alert-caution-text: "Caution";
+	}
+</style>
+
+
+</body>
+</html>

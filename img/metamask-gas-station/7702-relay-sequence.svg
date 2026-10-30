@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="2075" viewBox="0 0 1500 2075" role="img" aria-labelledby="title desc">
+<title id="title">7702 Relay submission</title>
+<desc id="desc">Verified Wallet and Sentinel API calls above a separate conceptual Blockchain panel. Server internals and relative timing are not verified. Transaction hash availability does not prove block inclusion.</desc>
+<rect width="1500" height="2075" fill="#18191c"/>
+<text x="750" y="48" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#eff0f3">7702 Relay submission</text>
+<text x="750" y="91" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#b5bac4">Wallet requests, transaction identifiers and the on-chain boundary</text>
+<line x1="220" y1="198" x2="220" y2="1955" stroke="#59606a" stroke-width="2" stroke-dasharray="8 8"/>
+<line x1="750" y1="198" x2="750" y2="1955" stroke="#59606a" stroke-width="2" stroke-dasharray="8 8"/>
+<line x1="1280" y1="198" x2="1280" y2="1955" stroke="#59606a" stroke-width="2" stroke-dasharray="8 8"/>
+<rect x="70" y="128" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="220" y="163" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">MetaMask Wallet</text>
+<rect x="600" y="128" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="750" y="163" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">Sentinel API</text>
+<rect x="1130" y="128" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="1280" y="163" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">Blockchain</text>
+<rect x="55" y="232" width="1390" height="40" rx="8" fill="#202b37" stroke="none" stroke-width="2"/>
+<text x="750" y="252" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#b9d2f1">CLIENT FLOW  |  Verified in the public MetaMask source</text>
+<rect x="55" y="292" width="975" height="198" rx="8" fill="none" stroke="#47515d" stroke-width="2"/>
+<text x="485" y="311" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="#b5bac4">Optional simulation</text>
+<text x="485" y="337" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="#b5bac4">May start before approval</text>
+<line x1="220" y1="399" x2="750" y2="399" stroke="#b5bac4" stroke-width="2"/>
+<polygon points="750,399 737,392 737,406" fill="#b5bac4"/>
+<text x="485.0" y="374" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">infura_simulateTransactions</text>
+<line x1="750" y1="477" x2="220" y2="477" stroke="#b5bac4" stroke-width="2" stroke-dasharray="8 8"/>
+<polygon points="220,477 233,470 233,484" fill="#b5bac4"/>
+<text x="485.0" y="452" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Simulation result / fee options</text>
+<rect x="72.5" y="510" width="825" height="58" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="485" y="539.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Request includes transactions[].from</text>
+<text x="220" y="587" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">After user approval</text>
+<text x="220" y="615" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Prepare signed delegation</text>
+<text x="220" y="643" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Encode executions</text>
+<line x1="220" y1="680" x2="282.5" y2="680" stroke="#b5bac4" stroke-width="2"/>
+<path d="M 282.5 680 A 17.5 17.5 0 0 1 282.5 715" fill="none" stroke="#b5bac4" stroke-width="2" stroke-linecap="round"/>
+<line x1="282.5" y1="715" x2="220" y2="715" stroke="#b5bac4" stroke-width="2"/>
+<polygon points="220,715 233,708 233,722" fill="#b5bac4"/>
+<line x1="220" y1="734" x2="750" y2="734" stroke="#b5bac4" stroke-width="2"/>
+<polygon points="750,734 737,727 737,741" fill="#b5bac4"/>
+<text x="485.0" y="709" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">eth_sendRelayTransaction</text>
+<rect x="72.5" y="766" width="825" height="86" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="485" y="794.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">data encodes signed delegation and executions</text>
+<text x="485" y="824.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">delegator identifies the wallet address</text>
+<rect x="72.5" y="875" width="825" height="86" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="485" y="903.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">HTTPS entry: peer IP + request data</text>
+<text x="485" y="933.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Logging and retention are not verified</text>
+<line x1="750" y1="1014" x2="220" y2="1014" stroke="#b5bac4" stroke-width="2" stroke-dasharray="8 8"/>
+<polygon points="220,1014 233,1007 233,1021" fill="#b5bac4"/>
+<text x="485.0" y="989" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Submission UUID</text>
+<rect x="55" y="1050" width="975" height="232" rx="8" fill="none" stroke="#47515d" stroke-width="2"/>
+<text x="485" y="1077" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="#b5bac4">Repeat while status is PENDING</text>
+<line x1="220" y1="1155" x2="750" y2="1155" stroke="#b5bac4" stroke-width="2"/>
+<polygon points="750,1155 737,1148 737,1162" fill="#b5bac4"/>
+<text x="485.0" y="1130" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">GET /smart-transactions/{uuid}</text>
+<line x1="750" y1="1245" x2="220" y2="1245" stroke="#b5bac4" stroke-width="2" stroke-dasharray="8 8"/>
+<polygon points="220,1245 233,1238 233,1252" fill="#b5bac4"/>
+<text x="485.0" y="1220" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Status + optional transaction hash</text>
+<rect x="72.5" y="1312" width="825" height="62" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="485" y="1343.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Hash availability does not prove block inclusion</text>
+<rect x="55" y="1420" width="1390" height="40" rx="8" fill="#302b23" stroke="none" stroke-width="2"/>
+<text x="750" y="1440" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#e9cf9c">ON-CHAIN PATH  |  Conceptual — not ordered against the client flow</text>
+<rect x="590.0" y="1480" width="850" height="86" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="1015" y="1508.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Backend details and submission timing</text>
+<text x="1015" y="1538.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">are not verified in the client source</text>
+<line x1="750" y1="1642" x2="1280" y2="1642" stroke="#b5bac4" stroke-width="2" stroke-dasharray="8 8"/>
+<polygon points="1280,1642 1267,1635 1267,1649" fill="#b5bac4"/>
+<text x="1015.0" y="1617" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Relay backend submits transaction</text>
+<text x="1280" y="1701" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Block inclusion</text>
+<text x="1280" y="1729" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">if accepted and selected</text>
+<line x1="1280" y1="1766" x2="1342.5" y2="1766" stroke="#b5bac4" stroke-width="2"/>
+<path d="M 1342.5 1766 A 17.5 17.5 0 0 1 1342.5 1801" fill="none" stroke="#b5bac4" stroke-width="2" stroke-linecap="round"/>
+<line x1="1342.5" y1="1801" x2="1280" y2="1801" stroke="#b5bac4" stroke-width="2"/>
+<polygon points="1280,1801 1293,1794 1293,1808" fill="#b5bac4"/>
+<rect x="55.0" y="1830" width="1390" height="96" rx="8" fill="#1d2520" stroke="#385d48" stroke-width="2"/>
+<text x="750" y="1863.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Potential correlation: peer IP → request → UUID → transaction hash</text>
+<text x="750" y="1893.0" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="23" font-weight="400" fill="#eff0f3">Requires retained and linkable server records</text>
+<rect x="70" y="1955" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="220" y="1990" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">MetaMask Wallet</text>
+<rect x="600" y="1955" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="750" y="1990" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">Sentinel API</text>
+<rect x="1130" y="1955" width="300" height="70" rx="8" fill="#1c293b" stroke="#376fa8" stroke-width="2"/>
+<text x="1280" y="1990" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#eff0f3">Blockchain</text>
+</svg>

